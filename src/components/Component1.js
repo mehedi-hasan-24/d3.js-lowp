@@ -1,0 +1,301 @@
+import React, { useRef, useEffect, useState } from "react";
+import * as d3 from "d3";
+import "./../App.css";
+import {
+  axisBottom,
+  axisLeft,
+  axisRight,
+  curveBasis,
+  curveCardinal,
+  line,
+  scaleBand,
+  scaleLinear,
+  select,
+  svg,
+} from "d3";
+
+const Component1 = () => {
+  const [data1, setData1] = useState([
+    { year: "max", data: 161276452, color: "#9773C6" },
+    { year: "avg", data: 35568417, color: "#FBAE79" },
+    { year: "min", data: 995400169, color: "#379DB4" },
+  ]);
+  const xTicksValues = ["max", "avg", "min"];
+  const EVALUATIONS_DATA = [
+    [
+      {
+        company_code: "company_one",
+        evaluation_indicator_id: 1,
+        evaluation_indicator: "棚卸⾦額",
+        business_period: "2020/08",
+        ei_max: 161276452,
+        ei_avg: 35568417,
+        ei_min: 5400169,
+      },
+      {
+        company_code: "company_one",
+        evaluation_indicator_id: 1,
+        evaluation_indicator: "棚卸⾦額",
+        business_period: "2020/02",
+        ei_max: 163541563,
+        ei_avg: 36321919,
+        ei_min: 4858858,
+      },
+    ],
+    [
+      {
+        company_code: "company_one",
+        evaluation_indicator_id: 1,
+        evaluation_indicator: "棚卸⾦額",
+        business_period: "2020/08",
+        ei_max: 163541563,
+        ei_avg: 36321919,
+        ei_min: 4858858,
+      },
+      {
+        company_code: "company_two",
+        evaluation_indicator_id: 2,
+        evaluation_indicator: "1個当り単価",
+        business_period: "2020/08",
+        ei_max: 36321919,
+        ei_avg: 109788,
+        ei_min: 18973,
+      },
+    ],
+  ];
+  let svgRef = useRef();
+
+  const roundMax = (number) => {
+    let digitCount = number.toString().length;
+    return (parseInt(number.toString()[0]) + 1) * Math.pow(10, digitCount - 1);
+  };
+  useEffect(() => {
+    const svg = select(svgRef.current);
+
+    //SVG dimention Markup
+    const dimensions = {
+      height: 400,
+      width: 1000,
+      margins: {
+        top: 50,
+        left: 50,
+        bottom: 50,
+        right: 50,
+      },
+      textMargin: {
+        top: 5,
+        left: 5,
+      },
+    };
+
+    dimensions.boundedHeight =
+      dimensions.height - dimensions.margins.top - dimensions.margins.bottom;
+    dimensions.boundedWidth =
+      dimensions.width - dimensions.margins.left - dimensions.margins.right;
+
+    //Chart Container
+    const bounds = svg
+      .append("g")
+      .attr("height", dimensions.boundedHeight)
+      .attr("width", dimensions.boundedWidth)
+      .style(
+        "transform",
+        "translate(" +
+          dimensions.margins.left +
+          "px, " +
+          dimensions.margins.top +
+          "px)"
+      );
+
+    svg
+      .attr("height", dimensions.height)
+      .attr("width", dimensions.width)
+      .style("border", "1px solid black");
+
+    //will divide our bounds width by number of charts we want to draw ## widthDividerScale(index) will return an integer that is the right most pixel of a single graph
+    const widthDividerScale = d3
+      .scaleLinear()
+      .domain([0, EVALUATIONS_DATA.length])
+      .range([0, dimensions.boundedWidth]);
+
+    //Scale for X-Axis
+    const xScale = scaleBand()
+      .domain(xTicksValues)
+      .range([0, widthDividerScale(1)])
+      .paddingInner(0.1)
+      .paddingOuter(0.5);
+
+    //Scale for Left Axis
+    const yScale = d3
+      .scaleLinear()
+      .domain([
+        0,
+        roundMax(
+          d3.max(EVALUATIONS_DATA, (datum) => d3.max(datum, (d1) => d1.ei_max))
+        ),
+      ])
+      .range([dimensions.boundedHeight, dimensions.margins.bottom]);
+    //Axis for plotting main data.
+    const yAxis = bounds
+      .append("g")
+      .call(
+        axisLeft()
+          .scale(yScale)
+          .ticks(2)
+          .tickFormat(d3.format(".0s"))
+          .tickSizeOuter(0)
+          .tickSize(0)
+          .tickPadding(7)
+      );
+    // const xxAxis = bounds
+    //   .append("g")
+    //   .attr("transform", "translate(0, " + dimensions.boundedHeight + ")")
+    //   .call(
+    //     axisBottom()
+    //       .scale(xScaleGenerator(widthDividerScale(0), widthDividerScale(1)))
+    //       .tickPadding(0.9)
+    //   );
+
+    const xAxis = bounds
+      .append("g")
+      .attr("class", "x-axis")
+      .selectAll("g")
+      .data(EVALUATIONS_DATA)
+      .enter()
+      .append("g")
+      .attr("transform", (d, i) => {
+        return `translate(${widthDividerScale(i)}, ${
+          dimensions.boundedHeight
+        } )`;
+      })
+      .call(axisBottom().scale(xScale).tickSize(0).tickPadding(8));
+    //Drawing Grid Lines
+    bounds
+      .append("g")
+      .attr("class", "grid-line")
+      .call(
+        axisLeft()
+          .scale(yScale)
+          .ticks(8)
+          .tickSize(-dimensions.boundedWidth)
+          .tickFormat("")
+          .tickSizeOuter(0)
+      )
+      .style("opacity", "0.3");
+
+    // let max_val = d3.max(data1, (datum) => {
+    //   // console.log(datum);
+    //   return datum.data;
+    // });
+
+    //Drawing Bars
+    bounds
+      .append("g")
+      .attr("class", "bar-container")
+      .selectAll("g")
+      .data(EVALUATIONS_DATA)
+      .enter()
+      .append("g")
+      .attr("transform", (_, i) => {
+        return `translate(${widthDividerScale(i)},0)`;
+      })
+      .selectAll("rect")
+      .data((d) => {
+        return [d[0].ei_max, d[0].ei_avg, d[0].ei_min];
+      })
+      .enter()
+      .append("rect")
+      .attr("x", (_, i) => xScale(xTicksValues[i]))
+      .attr("y", (d) => yScale(d))
+      .attr("width", xScale.bandwidth())
+      .attr("height", (d) => dimensions.boundedHeight - yScale(d))
+      .attr("fill", (_, i) => {
+        const current = xTicksValues[i];
+        switch (current) {
+          case "min": {
+            return "#379DB5";
+          }
+          case "avg": {
+            return "#FCAE7A";
+          }
+          case "max": {
+            return "#9773C6";
+          }
+          default: {
+            return "#000";
+          }
+        }
+      });
+
+    //Drawing Bar labels
+    bounds
+      .append("g")
+      .selectAll("g")
+      .data(EVALUATIONS_DATA)
+      .enter()
+      .append("g")
+      .attr("transform", (_, i) => {
+        return `translate(${widthDividerScale(i)},0)`;
+      })
+      .selectAll("rect")
+      .data((d) => {
+        return [d[0].ei_max, d[0].ei_avg, d[0].ei_min];
+      })
+      .enter()
+      .append("text")
+      .text((d) => d.toLocaleString())
+      .attr("font-weight", "bold")
+      .attr("x", (_, i) => xScale(xTicksValues[i]))
+      .attr("y", (d) => yScale(d) - dimensions.textMargin.top)
+      .style("font-size", "0.95rem")
+      .attr("fill", (_, i) => {
+        const current = xTicksValues[i];
+        switch (current) {
+          case "min": {
+            return "#379DB5";
+          }
+          case "avg": {
+            return "#FCAE7A";
+          }
+          case "max": {
+            return "#9773C6";
+          }
+          default: {
+            return "#000";
+          }
+        }
+      });
+
+    //Drawing Business period
+    bounds
+      .append("g")
+      .selectAll("text")
+      .data(EVALUATIONS_DATA)
+      .enter()
+      .append("text")
+      .attr("x", (_, i) => widthDividerScale(i) + widthDividerScale(1) / 2)
+      .attr("y", dimensions.margins.top / 2)
+      .text((d) => d[0].business_period)
+      .attr("font-weight", "bold");
+
+    //Drawing Separator Line
+    bounds
+      .append("g")
+      .attr("class", "separtor-line")
+      .selectAll("line")
+      .data(d3.range(EVALUATIONS_DATA.length + 1))
+      .enter()
+      .append("line")
+      .style("stroke", "black")
+      .style("stroke-width", 1)
+      .attr("x1", (_, i) => widthDividerScale(i))
+      .attr("y1", (_, i) => dimensions.margins.top - widthDividerScale(1) / 20)
+      .attr("x2", (_, i) => widthDividerScale(i))
+      .attr("y2", (_, i) =>
+        i === 0 ? dimensions.margins.top : dimensions.boundedHeight
+      );
+  }, [EVALUATIONS_DATA]);
+  return <svg ref={svgRef}></svg>;
+};
+
+export default Component1;
