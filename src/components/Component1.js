@@ -27,15 +27,6 @@ const Component1 = () => {
         ei_avg: 35568417,
         ei_min: 5400169,
       },
-      {
-        company_code: "company_one",
-        evaluation_indicator_id: 1,
-        evaluation_indicator: "棚卸⾦額",
-        business_period: "2020/02",
-        ei_max: 163541563,
-        ei_avg: 36321919,
-        ei_min: 4858858,
-      },
     ],
     [
       {
@@ -47,15 +38,6 @@ const Component1 = () => {
         ei_avg: 36321919,
         ei_min: 4858858,
       },
-      {
-        company_code: "company_two",
-        evaluation_indicator_id: 2,
-        evaluation_indicator: "1個当り単価",
-        business_period: "2020/08",
-        ei_max: 36321919,
-        ei_avg: 109788,
-        ei_min: 18973,
-      },
     ],
   ];
   let svgRef = useRef();
@@ -65,6 +47,7 @@ const Component1 = () => {
     return (parseInt(number.toString()[0]) + 1) * Math.pow(10, digitCount - 1);
   };
   useEffect(() => {
+    svgRef.current.innerHTML = "";
     const svg = select(svgRef.current);
 
     //SVG dimention Markup
