@@ -15,11 +15,6 @@ import {
 } from "d3";
 
 const Component1 = () => {
-  const [data1, setData1] = useState([
-    { year: "max", data: 161276452, color: "#9773C6" },
-    { year: "avg", data: 35568417, color: "#FBAE79" },
-    { year: "min", data: 995400169, color: "#379DB4" },
-  ]);
   const xTicksValues = ["max", "avg", "min"];
   const EVALUATIONS_DATA = [
     [
@@ -135,6 +130,7 @@ const Component1 = () => {
         ),
       ])
       .range([dimensions.boundedHeight, dimensions.margins.bottom]);
+
     //Axis for plotting main data.
     const yAxis = bounds
       .append("g")
@@ -147,15 +143,8 @@ const Component1 = () => {
           .tickSize(0)
           .tickPadding(7)
       );
-    // const xxAxis = bounds
-    //   .append("g")
-    //   .attr("transform", "translate(0, " + dimensions.boundedHeight + ")")
-    //   .call(
-    //     axisBottom()
-    //       .scale(xScaleGenerator(widthDividerScale(0), widthDividerScale(1)))
-    //       .tickPadding(0.9)
-    //   );
 
+    //X-Axis
     const xAxis = bounds
       .append("g")
       .attr("class", "x-axis")
@@ -169,6 +158,7 @@ const Component1 = () => {
         } )`;
       })
       .call(axisBottom().scale(xScale).tickSize(0).tickPadding(8));
+
     //Drawing Grid Lines
     bounds
       .append("g")
@@ -182,11 +172,6 @@ const Component1 = () => {
           .tickSizeOuter(0)
       )
       .style("opacity", "0.3");
-
-    // let max_val = d3.max(data1, (datum) => {
-    //   // console.log(datum);
-    //   return datum.data;
-    // });
 
     //Drawing Bars
     bounds
