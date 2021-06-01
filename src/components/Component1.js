@@ -70,6 +70,10 @@ const Component1 = () => {
       dimensions.height - dimensions.margins.top - dimensions.margins.bottom;
     dimensions.boundedWidth =
       dimensions.width - dimensions.margins.left - dimensions.margins.right;
+    svg
+      .attr("height", dimensions.height)
+      .attr("width", dimensions.width)
+      .style("border", "1px solid black");
 
     //Chart Container
     const bounds = svg
@@ -84,11 +88,6 @@ const Component1 = () => {
           dimensions.margins.top +
           "px)"
       );
-
-    svg
-      .attr("height", dimensions.height)
-      .attr("width", dimensions.width)
-      .style("border", "1px solid black");
 
     //will divide our bounds width by number of charts we want to draw ## widthDividerScale(index) will return an integer that is the right most pixel of a single graph
     const widthDividerScale = d3
