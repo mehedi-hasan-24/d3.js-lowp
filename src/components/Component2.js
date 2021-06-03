@@ -10,6 +10,46 @@ import {
   axisLeft,
 } from "d3";
 
+const useResizeObserver = (ref) => {
+  const [dimensions, setDimensions] = useState({
+    height: 500,
+    width: 1200,
+    margins: {
+      top: 50,
+      left: 50,
+      bottom: 50,
+      right: 50,
+    },
+    textMargin: {
+      top: 5,
+      left: 5,
+    },
+  });
+
+  useEffect(() => {
+    const observeTarget = ref.current;
+    const resizeObserver = new ResizeObserver((entries) => {
+      // console.log(entries);
+      if (!Array.isArray(entries)) return;
+      if (!entries.length) return;
+      const entry = entries[0];
+      console.log(entry.contentRect.height);
+      // entries.forEach((entry) => setDimensions(entry.contentRect));
+      setDimensions({
+        ...dimensions,
+        // height: entry.contentRect.height,
+        width: entry.contentRect.width,
+      });
+    });
+
+    resizeObserver.observe(observeTarget);
+    return () => {
+      resizeObserver.unobserve(observeTarget);
+    };
+  }, [ref]);
+  return dimensions;
+};
+
 const Component2 = () => {
   //rounding the value of upper value
   const roundMax = (number) => {
@@ -179,27 +219,18 @@ const Component2 = () => {
     ],
   };
   const svgRef = useRef();
+  const wrapperRef = useRef();
+
+  const DIMENSIONS = useResizeObserver(wrapperRef);
 
   // will be called initially and on every data change
   useEffect(() => {
     svgRef.current.innerHTML = "";
     const svg = select(svgRef.current);
-
+    console.log(DIMENSIONS);
+    if (!DIMENSIONS) return;
     //SVG dimention Markup
-    const dimensions = {
-      height: 400,
-      width: 1200,
-      margins: {
-        top: 50,
-        left: 50,
-        bottom: 50,
-        right: 50,
-      },
-      textMargin: {
-        top: 5,
-        left: 5,
-      },
-    };
+    const dimensions = DIMENSIONS;
 
     dimensions.boundedHeight =
       dimensions.height - dimensions.margins.top - dimensions.margins.bottom;
@@ -242,7 +273,6 @@ const Component2 = () => {
 
     //xScale generator
     const xScaleGenerator = (upperBound) => {
-      console.log("upperBound ", upperBound);
       return d3
         .scaleLinear()
         .domain([0, upperBound])
@@ -401,10 +431,10 @@ const Component2 = () => {
       .attr("y1", 0)
       .attr("x2", (_, i) => widthDividerScale(i + 1))
       .attr("y2", dimensions.boundedHeight);
-  }, [graphData]);
+  }, [graphData, DIMENSIONS, wrapperRef.current]);
 
   return (
-    <div id="graphContainer">
+    <div ref={wrapperRef} id="graphContainer">
       <svg ref={svgRef}></svg>
     </div>
   );
