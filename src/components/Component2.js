@@ -1,14 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
 // import "./App.css";
-import {
-  select,
-  axisBottom,
-  axisRight,
-  scaleLinear,
-  scaleBand,
-  axisLeft,
-} from "d3";
+import { select, axisBottom, scaleBand, axisLeft } from "d3";
 
 const useResizeObserver = (ref) => {
   const [dimensions, setDimensions] = useState({

@@ -1,18 +1,7 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import "./../App.css";
-import {
-  axisBottom,
-  axisLeft,
-  axisRight,
-  curveBasis,
-  curveCardinal,
-  line,
-  scaleBand,
-  scaleLinear,
-  select,
-  svg,
-} from "d3";
+import { axisBottom, axisLeft, scaleBand, select } from "d3";
 
 const Component1 = () => {
   const xTicksValues = ["max", "avg", "min"];
@@ -114,32 +103,32 @@ const Component1 = () => {
       .range([dimensions.boundedHeight, dimensions.margins.bottom]);
 
     //Axis for plotting main data.
-    const yAxis = bounds
-      .append("g")
-      .call(
-        axisLeft()
-          .scale(yScale)
-          .ticks(2)
-          .tickFormat(d3.format(".0s"))
-          .tickSizeOuter(0)
-          .tickSize(0)
-          .tickPadding(7)
-      );
+    // const yAxis = bounds
+    //   .append("g")
+    //   .call(
+    //     axisLeft()
+    //       .scale(yScale)
+    //       .ticks(2)
+    //       .tickFormat(d3.format(".0s"))
+    //       .tickSizeOuter(0)
+    //       .tickSize(0)
+    //       .tickPadding(7)
+    //   );
 
     //X-Axis
-    const xAxis = bounds
-      .append("g")
-      .attr("class", "x-axis")
-      .selectAll("g")
-      .data(EVALUATIONS_DATA)
-      .enter()
-      .append("g")
-      .attr("transform", (d, i) => {
-        return `translate(${widthDividerScale(i)}, ${
-          dimensions.boundedHeight
-        } )`;
-      })
-      .call(axisBottom().scale(xScale).tickSize(0).tickPadding(8));
+    // const xAxis = bounds
+    //   .append("g")
+    //   .attr("class", "x-axis")
+    //   .selectAll("g")
+    //   .data(EVALUATIONS_DATA)
+    //   .enter()
+    //   .append("g")
+    //   .attr("transform", (d, i) => {
+    //     return `translate(${widthDividerScale(i)}, ${
+    //       dimensions.boundedHeight
+    //     } )`;
+    //   })
+    //   .call(axisBottom().scale(xScale).tickSize(0).tickPadding(8));
 
     //Drawing Grid Lines
     bounds
